@@ -1,30 +1,55 @@
 // src/utils/moveFinder.ts
 
-let cache: number[][] = []
+const data = new Map<string, string>()
 
 export async function loadPrecomputedData(): Promise<void> {
-    if (cache.length) return; // уже загружено
+    if (data.size) return;
 
     const response = await fetch(import.meta.env.BASE_URL + 'precomputed.txt');
     const text = await response.text();
 
 
-    const lines = text.split('\n');
+    const lines = text.split('\r\n');
     for (const line of lines) {
-        cache.push(line.trim().split(' ').map(val => Number(val)));
+        if (!line.length) continue;
+        const array = line.split('=')[0].split(' ').map(Number);
+        const move = line.split('=')[1].split(' ').map(Number);
+        array.splice(array.length - 1, 1);
+        move.splice(move.length - 1, 1);
+        data.set(JSON.stringify(array), JSON.stringify(move));
     }
 
 }
 
-export function bestSpecialMove(position: boolean[]): number[] {
-    if (!cache) {
+export function bestSpecialMove(sticksSegs: [number, number][]): number[] {
+    if (!data.size) {
         throw new Error('Precomputed data not loaded. Call loadPrecomputedData() first.');
     }
-    const temp = [...position];
-    while(temp.length < 20)temp.push(false)
-    let idx: number = 0;
-    for (let i = 0; i < temp.length; i++) {
-        if(temp[i])idx += Math.pow(2, (20 - i - 1))
+    const segs = [...sticksSegs];
+
+    segs.sort((a, b) => a[1] - b[1])
+    console.log(segs);
+    const move =data.get(JSON.stringify(segs.map(val => val[1])));
+    if (move === undefined){
+        throw new Error('Нет такого хода');
     }
-    return cache[idx]
+    const res = JSON.parse(move)
+    console.log(res);
+    const toDelete:number[] = []
+    if (res[0] == 0){
+        toDelete.push(segs[0][0]);
+    }
+    if (res[0] == 1){
+        toDelete.push(segs[res[1]][0] + res[2])
+    }
+    if(res[0] == 2){
+        toDelete.push(segs[res[1]][0] + res[2])
+        toDelete.push(segs[res[3]][0] + res[4])
+    }
+    if(res[0] == 3){
+        toDelete.push(segs[res[1]][0] + res[2])
+        toDelete.push(segs[res[1]][0] + res[2] + 1)
+        toDelete.push(segs[res[1]][0] + res[2] + 2)
+    }
+    return toDelete;
 }

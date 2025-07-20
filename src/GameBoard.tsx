@@ -26,7 +26,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ mode, exitGame, numberOfSticks, m
     for (let i = 0; i < aliveSticks.length; i++) {
         let j = i;
         while(j < aliveSticks.length && aliveSticks[j])j++;
-        sticksSegs.push([i, j - i])
+        if (j - i)sticksSegs.push([i, j - i])
         i = j;
     }
 
@@ -116,19 +116,9 @@ const GameBoard: React.FC<GameBoardProps> = ({ mode, exitGame, numberOfSticks, m
                 }, 500)
             }
             if (mode == "Special" && isDataLoaded){
-                const bestMove = bestSpecialMove(aliveSticks)
-                const toDelete: number[] = []
-                if (bestMove[0] == 0) toDelete.push(aliveSticksIndexes[Math.floor(Math.random() * aliveSticksIndexes.length)]);
-                if (bestMove[0] == 1) toDelete.push(bestMove[1] - 1);
-                if (bestMove[0] == 2) {
-                    toDelete.push(bestMove[1] - 1);
-                    toDelete.push(bestMove[2] - 1);
-                }
-                if (bestMove[0] == 3) {
-                    toDelete.push(bestMove[1] - 1);
-                    toDelete.push(bestMove[1]);
-                    toDelete.push(bestMove[1] + 1);
-                }
+                const toDelete = bestSpecialMove(sticksSegs)
+                console.log(toDelete);
+                setPlayer("player");
                 setTimeout( () => {
                     setSticks(sticks.map((val, i) => {
                         if (toDelete.includes(i))return 'last';

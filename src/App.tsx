@@ -21,7 +21,6 @@ function App() {
     const handleModeSelector  = (mode : GameMode) => {
         setOpenModal(true);
         setChosenMode(mode)
-        if (mode == "Special")setK(Math.min(k, 20))
     }
 
     const exitGame = () => {
@@ -77,7 +76,7 @@ function App() {
                                     onChange={handleChangeK}
                                     valueLabelDisplay="auto"
                                     min={5}
-                                    max={chosenMode == 'Special' ? 20 : 50}
+                                    max={50}
                                     step={1}
                                 />
                             </div>
