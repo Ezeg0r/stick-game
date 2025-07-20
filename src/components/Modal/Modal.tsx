@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import Button from "../Button/Button.tsx";
 
 type ModalProps = {
     isOpen: boolean;

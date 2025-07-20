@@ -5,7 +5,7 @@ let cache: number[][] = []
 export async function loadPrecomputedData(): Promise<void> {
     if (cache.length) return; // уже загружено
 
-    const response = await fetch('../../public/precomputed.txt');
+    const response = await fetch('/precomputed.txt');
     const text = await response.text();
 
 
