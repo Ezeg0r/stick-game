@@ -9,7 +9,7 @@ export async function loadPrecomputedData(): Promise<void> {
     const text = await response.text();
 
 
-    const lines = text.split('\r\n');
+    const lines = text.split('\n');
     for (const line of lines) {
         if (!line.length) continue;
         const array = line.split('=')[0].split(' ').map(Number);
