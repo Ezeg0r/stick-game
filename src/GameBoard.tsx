@@ -19,6 +19,9 @@ const GameBoard: React.FC<GameBoardProps> = ({ mode, exitGame, numberOfSticks, m
     const [player, setPlayer] = useState<"player" | "computer">(firstPlayer);
     const [isDataLoaded, setIsDataLoaded] = useState<boolean>(false);
     const [optimalMove, setOptimalMove] = useState<'none' | 'yes' | 'no'>('none');
+    const [computerDelay, setComputerDelay] = useState<"yes" | 'no'>('no');
+
+
     const selectedSticksIndexes = sticks.map((val, i) => val == 'selected' ? i : null).filter(val => val != null);
     const aliveSticksIndexes = sticks.map((val, i) => val == 'default' || val == 'selected' ? i : null).filter(val => val != null);
     const aliveSticks = sticks.map((val) => val == "default" || val == 'selected');
@@ -64,7 +67,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ mode, exitGame, numberOfSticks, m
     });
 
 
-    if (player == "computer" && aliveSticksIndexes.length >= minSticks) {
+    if (player == "computer" && computerDelay == 'no' && aliveSticksIndexes.length >= minSticks) {
         let maxSeg = 0;
         sticksSegs.forEach(val => maxSeg = Math.max(maxSeg, val[1]))
 
@@ -87,6 +90,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ mode, exitGame, numberOfSticks, m
                     toDelete.push(tempDefaultSticks[random]);
                     tempDefaultSticks.splice(random, 1);
                 }
+                setComputerDelay('yes');
                 setTimeout( () => {
                     setSticks(sticks.map((val, i) => {
                         if (toDelete.includes(i)) return 'last';
@@ -94,6 +98,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ mode, exitGame, numberOfSticks, m
                         return val;
                     }))
                     setPlayer("player");
+                    setComputerDelay('no');
                 }, 500)
 
             }
@@ -101,7 +106,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ mode, exitGame, numberOfSticks, m
                 const aliveSticks = sticks.map((val) => val == "default")
 
                 let [from, n] = bestConsecutiveMove(aliveSticks, minSticks, maxSticks);
-                console.log(from, n)
 
                 if (from == -1){
                     setOptimalMove('no');
@@ -116,7 +120,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ mode, exitGame, numberOfSticks, m
                 else {
                     setOptimalMove('yes');
                 }
-
+                setComputerDelay('yes');
                 setTimeout( () => {
                     setSticks(sticks.map((val, i) => {
                         if (i >= from && i < from + n)return 'last';
@@ -124,17 +128,17 @@ const GameBoard: React.FC<GameBoardProps> = ({ mode, exitGame, numberOfSticks, m
                         return val;
                     }));
                     setPlayer("player");
+                    setComputerDelay('no');
                 }, 500)
             }
             if (mode == "Special" && isDataLoaded){
                 const toDelete = bestSpecialMove(sticksSegs)
-                console.log(toDelete);
                 if (toDelete.length == 0){
                     setOptimalMove('no');
                     toDelete.push(aliveSticksIndexes[Math.floor(aliveSticksIndexes.length * Math.random())]);
                 }
                 else setOptimalMove('yes');
-                setPlayer("player");
+                setComputerDelay('yes');
                 setTimeout( () => {
                     setSticks(sticks.map((val, i) => {
                         if (toDelete.includes(i))return 'last';
@@ -142,6 +146,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ mode, exitGame, numberOfSticks, m
                         return val;
                     }));
                     setPlayer("player");
+                    setComputerDelay('no');
                 }, 500)
                 }
 
@@ -159,7 +164,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ mode, exitGame, numberOfSticks, m
     const takeSticks = () => {
         switch (mode) {
             case 'Standard' : {
-                console.log(selectedSticksIndexes.length);
                 if (selectedSticksIndexes.length < minSticks) {
                     alert("Выберите больше палочек!")
                     return;

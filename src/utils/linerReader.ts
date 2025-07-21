@@ -28,13 +28,11 @@ export function bestSpecialMove(sticksSegs: [number, number][]): number[] {
     const segs = [...sticksSegs];
 
     segs.sort((a, b) => a[1] - b[1])
-    console.log(segs);
     const move =data.get(JSON.stringify(segs.map(val => val[1])));
     if (move === undefined){
         throw new Error('Нет такого хода');
     }
     const res = JSON.parse(move)
-    console.log(res);
     const toDelete:number[] = []
     if (res[0] == 1){
         toDelete.push(segs[res[1]][0] + res[2])
