@@ -18,7 +18,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ mode, exitGame, numberOfSticks, m
     const [sticks, setSticks] = useState<Array<"selected" | "default" | "disabled" | "last">>(Array(numberOfSticks).fill('default'));
     const [player, setPlayer] = useState<"player" | "computer">(firstPlayer);
     const [isDataLoaded, setIsDataLoaded] = useState<boolean>(false);
-
+    const [optimalMove, setOptimalMove] = useState<'none' | 'yes' | 'no'>('none');
     const selectedSticksIndexes = sticks.map((val, i) => val == 'selected' ? i : null).filter(val => val != null);
     const aliveSticksIndexes = sticks.map((val, i) => val == 'default' || val == 'selected' ? i : null).filter(val => val != null);
     const aliveSticks = sticks.map((val) => val == "default" || val == 'selected');
@@ -73,7 +73,13 @@ const GameBoard: React.FC<GameBoardProps> = ({ mode, exitGame, numberOfSticks, m
                 const tempDefaultSticks = [...aliveSticksIndexes];
 
                 let result = bestStandardMove(tempDefaultSticks.length, minSticks, maxSticks);
-                if(result == 0)result = minSticks;
+                if(result == 0){
+                    setOptimalMove('no');
+                    result = minSticks;
+                }
+                else {
+                    setOptimalMove('yes');
+                }
                 const toDelete: number[] = []
 
                 while (result--) {
@@ -98,14 +104,19 @@ const GameBoard: React.FC<GameBoardProps> = ({ mode, exitGame, numberOfSticks, m
                 console.log(from, n)
 
                 if (from == -1){
+                    setOptimalMove('no');
                     for (let i = 0; i < sticksSegs.length; i++) {
                         if (sticksSegs[i][1] >= minSticks) {
                             from = sticksSegs[i][0]
                             n = minSticks;
                         }
                     }
-                    console.assert(from != -1)
+                    console.assert(from != -1);
                 }
+                else {
+                    setOptimalMove('yes');
+                }
+
                 setTimeout( () => {
                     setSticks(sticks.map((val, i) => {
                         if (i >= from && i < from + n)return 'last';
@@ -118,6 +129,11 @@ const GameBoard: React.FC<GameBoardProps> = ({ mode, exitGame, numberOfSticks, m
             if (mode == "Special" && isDataLoaded){
                 const toDelete = bestSpecialMove(sticksSegs)
                 console.log(toDelete);
+                if (toDelete.length == 0){
+                    setOptimalMove('no');
+                    toDelete.push(aliveSticksIndexes[Math.floor(aliveSticksIndexes.length * Math.random())]);
+                }
+                else setOptimalMove('yes');
                 setPlayer("player");
                 setTimeout( () => {
                     setSticks(sticks.map((val, i) => {
@@ -211,7 +227,11 @@ const GameBoard: React.FC<GameBoardProps> = ({ mode, exitGame, numberOfSticks, m
         <div className="flex flex-col justify-between items-center h-dvh w-dvw bg-gradient-to-br from-emerald-400 to-emerald-600 py-10 px-4">
             <div className="font-main text-8xl font-extrabold text-white drop-shadow-lg mb-4">Stick Game</div>
             <h1 className="text-3xl font-bold text-gray-800 mb-6">
-                Режим: <span className="text-cyan-800">{gameModes[mode]}</span><br/>
+                Режим: <span className="text-cyan-800">{gameModes[mode]}</span>
+                {optimalMove == 'yes' && ('😎')}
+                {optimalMove == 'no' && ('🤔')}
+                {optimalMove == 'none' && ('😐')}
+                <br/>
                 <span className="text-cyan-800">{numberOfSticks}</span> палочек,
                 от <span className="text-cyan-800">{minSticks}</span> до <span
                 className="text-cyan-800 font-bold">{maxSticks}</span>

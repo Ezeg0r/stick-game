@@ -36,9 +36,6 @@ export function bestSpecialMove(sticksSegs: [number, number][]): number[] {
     const res = JSON.parse(move)
     console.log(res);
     const toDelete:number[] = []
-    if (res[0] == 0){
-        toDelete.push(segs[0][0]);
-    }
     if (res[0] == 1){
         toDelete.push(segs[res[1]][0] + res[2])
     }
