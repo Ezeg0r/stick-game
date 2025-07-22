@@ -6,13 +6,10 @@ map<multiset<int>, vector<int>>dp;
 
 multiset<int>state;
 vector<int> rec(){
-    // for (auto x : state)cout << x << ' ';
-    // cout << endl;
-
     if (dp[state].size())return dp[state];
     auto stateCopy = state;
     int idx = 0;
-    /// 1 случай
+    /// 1 палолчка
     for (auto seg : stateCopy){
         state.erase(state.find(seg));
         for (int j = 0; j < seg; j++){
@@ -24,14 +21,14 @@ vector<int> rec(){
             if (l != 0)state.erase(state.find(l));
             if (r != 0)state.erase(state.find(r));
             if (res.size() == 1){
-                state.insert(seg);
-                return dp[state] = {1, idx, j};
+                dp[stateCopy] = {1, idx, j};
             }
         }
         state.insert(seg);
         idx++;
     }
-    /// 3 случай
+    /// 3 палочки
+    idx = 0;
     for (auto seg : stateCopy){
         state.erase(state.find(seg));
         for (int j = 0; j + 2 < seg; j++){
@@ -43,14 +40,13 @@ vector<int> rec(){
             if (l != 0)state.erase(state.find(l));
             if (r != 0)state.erase(state.find(r));
             if (res.size() == 1){
-                state.insert(seg);
-                return dp[state] = {3, idx, j};
+                dp[stateCopy] = {3, idx, j};
             }
         }
         state.insert(seg);
         idx++;
     }
-    ///2 случай
+    ///2 палочки
     /// В разных сегментах
     int idx1, idx2;
     idx1 = idx2 = 0;
@@ -74,11 +70,7 @@ vector<int> rec(){
                     if (l2 != 0)state.erase(state.find(l2));
                     if (r2 != 0)state.erase(state.find(r2));
                     if (res.size() == 1){
-                        state.insert(seg1);
-                        state.insert(seg2);
-                        if (l1 != 0)state.erase(state.find(l1));
-                        if (r1 != 0)state.erase(state.find(r1));
-                        return dp[state] = {2, idx1, i, idx2, j};
+                        dp[stateCopy] = {2, idx1, i, idx2, j};
                     }
                 }
                 if (l1 != 0)state.erase(state.find(l1));
@@ -107,37 +99,36 @@ vector<int> rec(){
                 if (mid != 0)state.erase(state.find(mid));
                 if (r != 0)state.erase(state.find(r));
                 if (res.size() == 1){
-                    state.insert(seg);
-                    return dp[state] = {2, idx, i, idx, j};
+                    dp[stateCopy] = {2, idx, i, idx, j};
                 }
             }
         }
         state.insert(seg);
         idx++;
     }
-    // // Проигрышный стэйт
-    return dp[state] = {0};
-
+    if(dp[stateCopy].size())return dp[stateCopy];
+    return dp[state] = {0};// Проигрышный стэйт
 }
+
 int main() {
-    ofstream cout("res2.txt");
+    ofstream fout("precomputed.txt");
     string s;
     cin >> s;
     multiset<int>st;
     dp[st] = {0};
-    for (int i = 0; i < s.size(); i++){
-        int j = i;
-        while(j < s.size() && s[j] == '1')j++;
-        if (j - i > 0)st.insert(j - i);
-        i = j;
+    for (int i = 1; i <= 10; i++){
+        multiset<int>st;
+        st.insert(i);
+        state = st;
+        rec();
+        cout << i << endl;
     }
-    state = st;
     rec();
     for (auto[set, res] : dp){
-        for (auto x : set)cout << x << ' ';
-        cout << "=";
-        for (auto x : res)cout << x << ' ';
-        cout << "\n";
+        for (auto x : set)fout << x << ' ';
+        fout << "=";
+        for (auto x : res)fout << x << ' ';
+        fout << "\n";
     }
     return 0;
 }
