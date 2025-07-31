@@ -38,7 +38,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ mode, exitGame, numberOfSticks, m
             alert("Вы проиграли!")
         }
         else{
-            alert("Вы выйграли!")
+            alert("Вы выиграли!")
         }
         exitGame()
     }
