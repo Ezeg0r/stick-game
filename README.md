@@ -1,6 +1,6 @@
 # 🥢 Stick Game: AI-Powered Combinatorial Game Solver
 
-[![Play Online]](https://ezeg0r.github.io/stick-game/)
+[Play Online](https://ezeg0r.github.io/stick-game/)
 
 A high-performance web application designed to solve and visualize a mathematical "Stick Game" (a variant of Nim). The project combines advanced **Game Theory algorithms** (implemented in C++) with a modern **React/TypeScript** frontend.
 
