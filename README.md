@@ -1,62 +1,51 @@
-# Stick Game 🎮
+# 🥢 Stick Game: AI-Powered Combinatorial Game Solver
 
-A web-based interactive implementation of **Combinatorial Game Theory** concepts. This project demonstrates various algorithmic approaches to solving mathematical games, ranging from Dynamic Programming to Sprague-Grundy theorem applications and large-scale state pre-computation.
+[![Play Online]](https://ezeg0r.github.io/stick-game/)
 
-[**Play the Game**](https://ezeg0r.github.io/stick-game/)
+A high-performance web application designed to solve and visualize a mathematical "Stick Game" (a variant of Nim). The project combines advanced **Game Theory algorithms** (implemented in C++) with a modern **React/TypeScript** frontend.
 
----
+## 🎮 The Game Rules
+There are $N$ sticks arranged in a row. Two players take turns taking sticks according to specific rules. The player who cannot make a move loses (Normal Play convention).
 
-## 🧠 Algorithmic Core (Game Modes)
+I have implemented 3 distinct game modes based on different algorithmic constraints:
 
-The game features three distinct difficulty modes, each requiring a different algorithmic strategy to solve.
+### 1. Standard Mode
+* **Rules:** Players can take between $1$ and $K$ (or range $[A, B]$) of **any** sticks, regardless of their position.
+* **Algorithm:** Dynamic Programming (DP).
+* **Logic:** Since position doesn't matter, the state is defined simply by the count of remaining sticks. The AI calculates the winning move on the fly using $O(N)$ DP or memoization.
 
-### 1. Standard Mode (Classic DP)
-**Rules:** Players take a allowed number of sticks from a single pile.
-* **Algorithm:** Classic **Dynamic Programming**.
-* **Logic:** The state is defined by the number of remaining sticks ($N$). We calculate `dp[i]` (win/loss) based on possible transitions.
-* **Complexity:** $O(N \cdot K)$, calculated on-the-fly in the browser.
-* **Feature:** Added stochasticity to the bot's moves to make the game less predictable for human players.
-
-### 2. Consecutive Mode (Sprague-Grundy Theorem)
-**Rules:** Players can take sticks only if they are adjacent (consecutive).
-* **Analysis:** The game breaks down into independent sub-games (groups of consecutive sticks). This classifies it as an **Impartial Game**.
+### 2. Consecutive Mode
+* **Rules:** Players can take a range of sticks, but they must be **consecutive** (a solid block without gaps).
 * **Algorithm:** **Sprague-Grundy Theorem**.
 * **Logic:**
-    1.  Treat groups of sticks as independent games.
-    2.  Compute the **Grundy numbers (Mex)** for each group size.
-    3.  The state of the entire game is the **XOR sum** of the Grundy numbers of all groups.
-    4.  The bot searches for a move that makes the total XOR sum zero (a losing position for the opponent).
-* **Performance:** $O(N^3)$ worst-case, efficiently handled in the browser.
+    * The game decomposes into independent subgames (groups of adjacent sticks).
+    * The state of the game is the XOR sum ($\oplus$) of the Grundy numbers (Nim-values) of these subgames.
+    * The AI calculates the `Mex` (Minimum Excluded value) for each state to determine the optimal move.
+    * **Complexity:** Efficient enough for real-time calculation in the browser.
 
-
-
-### 3. Special Mode (Pre-computed State Space)
-**Rules:** Players can remove specific patterns of sticks (e.g., 2 sticks separated by a gap).
-* **The Challenge:** Moves can split groups or merge them in complex ways, violating the independence of sub-games. Standard Sprague-Grundy logic does not apply.
-* **Solution:** **Exhaustive State Space Search** with Memoization.
-* **Engineering Optimization:**
-    * The state space was too large for real-time JavaScript calculation.
-    * I implemented a high-performance **C++ solver** to traverse the recursion tree and solve all ~240,000 game states.
-    * **Pre-computation:** The C++ script generates a **Lookup Table** (approx. 7MB).
-    * **Deployment:** The web app loads this pre-computed solution map, allowing for **O(1)** instant move retrieval in the browser.
-
----
+### 3. Special Mode (The Hardest Challenge)
+* **Rules:** A hybrid variant where a player can take:
+    * 3 consecutive sticks, OR
+    * 1 stick from anywhere, OR
+    * 2 sticks from anywhere (even from different groups).
+* **The Challenge:** The ability to pick "2 arbitrary sticks" breaks the independence of subgames, rendering the Sprague-Grundy theorem inapplicable. The state space is complex due to the combination of positional and count-based moves.
+* **Solution:** **Offline Pre-computation (C++ -> Web)**.
+    * I analyzed the state space and determined that while raw states are huge ($2^{50}$), reachable unique configurations are manageable (~240,000 states for $N=50$).
+    * I wrote a highly optimized **C++ solver** using recursion and map-compression to traverse all states.
+    * The results were compiled into a **7MB lookup table**.
+    * The web app loads this data to provide an **instant O(1) optimal response** against the user, making the AI unbeatable in this mode.
 
 ## 🛠 Tech Stack
 
-* **Frontend:** React, TypeScript
-* **Algorithms:** C++ (for offline pre-computation), TypeScript (for real-time logic)
-* **Deployment:** GitHub Pages
+* **Frontend:** TypeScript, React (Custom hooks for game logic).
+* **Algorithms:** C++ (for pre-computing heavy states), JavaScript (for real-time DP/XOR logic).
+* **Deployment:** GitHub Pages.
 
 ## ✨ Key Features
 
-* **Interactive UI:** Visual representation of game states with intuitive controls.
-* **AI Personality:** The computer reacts to the game state:
-    * 😐 Neutral: State is undecided or bot moves second.
-    * 😎 Confident: The bot found a winning strategy (you are in a losing position).
-    * 🤔 Puzzled: The bot is in a losing position (you found the optimal move).
-* **State Persistence:** Remembers user preferences and last played mode using LocalStorage.
-* **Rule Validation:** Real-time checking of move validity.
-
----
-*Developed by [Yahor Yasinski](https://github.com/Ezeg0r). Open for feedback and contributions.*
+* **Interactive UI:** Click-to-select sticks with validation of legal moves.
+* **State Persistence:** The app remembers your last game settings.
+* **"Emotional" AI:** The computer reacts to the state of the game:
+    * 😐 **Neutral:** Calculations pending or equal position.
+    * 😎 **Confident:** The AI has found a winning strategy (you are in a losing position).
+    * 🤔 **Thinking/Worried:** The AI is in a losing position (this is your chance to win!).
